@@ -1,0 +1,18 @@
+@font-face {
+  font-family: "IRANYekanRegular";
+  src: url("../assets/font/IRANYekanRegular.ttf");
+}
+
+@font-face {
+  font-family: "IRANYekanMedium";
+  src: url("../assets/font/IRANYekanMedium.ttf");
+}
+
+@font-face {
+  font-family: "IRANYekanBold";
+  src: url("../assets/font/IRANYekanBold.ttf");
+}
+
+* {
+  font-family: IRANYekanRegular;
+}

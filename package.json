@@ -1,0 +1,45 @@
+{
+  "name": "flowchart",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@syncfusion/ej2-base": "^20.1.50",
+    "@syncfusion/ej2-navigations": "^20.3.58",
+    "@syncfusion/ej2-react-diagrams": "^20.1.48",
+    "@syncfusion/ej2-react-inputs": "^20.1.48",
+    "ckeditor4-react": "^3.0.0",
+    "dom-to-image": "^2.6.0",
+    "eslint": "^8.29.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-toastify": "^9.1.1",
+    "sass": "^1.56.1",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.24",
+    "@types/react-dom": "^18.0.8",
+    "@typescript-eslint/eslint-plugin": "^5.17.0",
+    "@typescript-eslint/parser": "^5.17.0",
+    "@vitejs/plugin-react": "^2.2.0",
+    "autoprefixer": "^10.4.4",
+    "eslint": "^8.29.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-next": "12.1.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-react": "^7.29.4",
+    "eslint-plugin-react-hooks": "^4.4.0",
+    "eslint-plugin-unicorn": "^41.0.1",
+    "husky": "^7.0.4",
+    "typescript": "^4.6.4",
+    "vite": "^3.2.3"
+  }
+}
