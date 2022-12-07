@@ -1,19 +1,14 @@
 /* eslint-disable import/no-relative-packages */
-import React, { useRef, useState } from "react";
-import { toast } from "react-toastify";
+import React, { useEffect, useRef, useState } from "react";
 import { EFlowType } from "../../extra/ClasorEditor/src/Enum";
-import { getEditorInstance } from "../../extra/ClasorEditor/src/Store";
 import FlowChart from "../../extra/ClasorEditor/src/CoreEditor/FlowChart/FlowChart";
 import { MindMap } from "../../extra/ClasorEditor/src/CoreEditor/FlowChart/MindMap";
 import { Swimlane } from "../../extra/ClasorEditor/src/CoreEditor/FlowChart/Swimlane";
 import { getEditor } from "../../extra/ClasorEditor/src/CoreEditor/Func";
+import { IframeAction } from "../../interface/enum";
 
-interface IProps {
-  close: () => void;
-  codeHash: string | null;
-}
-
-const Flowchart = ({ close, codeHash }: IProps) => {
+const Flowchart = () => {
+  const codeHash = "test";
   let flowchartRef: FlowChart | Swimlane | MindMap | null = null;
   const nameRef = useRef<HTMLInputElement>(null);
   const [flowChartType, setFlowChartType] = useState<EFlowType>(
@@ -22,108 +17,7 @@ const Flowchart = ({ close, codeHash }: IProps) => {
   const setTypeRef = useRef<boolean>(false);
 
   const confirm = () => {
-    const flowchartDialog = document.querySelectorAll(
-      ".clasor-flowchart-dialog",
-    );
-    if (!flowchartDialog || !flowchartDialog[0]) {
-      return;
-    }
-    const confirmBtn = flowchartDialog[0].querySelectorAll(
-      ".cke_dialog_ui_button_ok",
-    ) as NodeListOf<HTMLButtonElement>;
-    if (!confirmBtn || !confirmBtn[0]) {
-      return;
-    }
-    // if (confirmBtn) {
-    //   confirmBtn?.click();
-    // }
-    close();
-  };
-
-  const onUpdate = (name: string, flowchartdata: string) => {
-    const editor = getEditor();
-
-    if (!editor) {
-      return;
-    }
-
-    const parentNode = editor.querySelectorAll(
-      `.clasor-flowchart-${codeHash}`,
-    );
-    if (!parentNode || !parentNode[0]) {
-      return;
-    }
-
-    const element = parentNode[0];
-
-    const parentInnerHTML = parentNode[0].innerHTML;
-    const startIndex = parentInnerHTML.indexOf("<ins class=\"ice-ins");
-    element.innerHTML = `فلوچارت : ${name}`;
-    if (startIndex !== -1) {
-      const endIndex = parentInnerHTML.indexOf(">", startIndex);
-      if (endIndex !== -1) {
-        // eslint-disable-next-line unicorn/prefer-string-slice
-        const insTag = parentInnerHTML.substring(startIndex, endIndex + 1);
-        element.innerHTML = `${insTag}${element.innerHTML}</ins>`;
-      }
-    }
-    (element as HTMLElement).dataset.content = name;
-    (element as HTMLElement).dataset.flow = flowchartdata;
-    (element as HTMLElement).dataset.hash = codeHash as string;
-
-    const editorInstance = getEditorInstance();
-    const endOfLine = "<p className=\"new-line\"></p>";
-    editorInstance?.insertElement(endOfLine);
-
-    close();
-  };
-
-  const confirmDialog = async () => {
-    const nameInput = nameRef.current;
-    if (!nameInput || !nameInput.value) {
-      toast.error("نام فلوچارت انتخاب نشده است.");
-      return;
-    }
-    if (flowchartRef) {
-      const data = (flowchartRef as FlowChart).getData();
-      if (!data) {
-        toast.error("تغییری وجود ندارد.");
-        return;
-      }
-      const JsonData = JSON.parse(data);
-      if (
-        JsonData.connectors
-        && JsonData.connectors.length === 0
-        && JsonData.nodes
-        && JsonData.nodes.length === 0
-      ) {
-        toast.error("تغییری وجود ندارد.");
-        return;
-      }
-      if (codeHash) {
-        // to update a exist flowchart
-        console.log(nameInput.value);
-        onUpdate(
-          nameInput.value,
-          JSON.stringify({
-            nodes: JsonData.nodes,
-            connectors: JsonData.connectors,
-          }),
-        );
-      } else {
-        sessionStorage.setItem("ckeditor-flowchart-name", nameInput.value);
-        sessionStorage.setItem("ckeditor-flowchart-type", flowChartType);
-        sessionStorage.setItem(
-          "ckeditor-flowchart",
-          JSON.stringify({
-            nodes: JsonData.nodes,
-            connectors: JsonData.connectors,
-          }),
-        );
-        confirm();
-      }
-      console.log(JSON.parse(data));
-    }
+    console.log(flowchartRef?.getData());
   };
 
   const setFlowChartData = (flowRef: FlowChart | Swimlane | MindMap | null) => {
@@ -199,6 +93,46 @@ const Flowchart = ({ close, codeHash }: IProps) => {
     }
   };
 
+  const iframeActions = async (event: MessageEvent) => {
+    const { action, key, value } = event.data;
+
+    console.log("message from parent recieved:", action);
+
+    switch (action) {
+      case IframeAction.SAVE:
+      case IframeAction.FREE_DRAFT:
+        event.source!.postMessage(
+          {
+            action,
+            key,
+            value: flowchartRef?.getData(),
+          },
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          "*",
+        );
+        localStorage.setItem(key, flowchartRef?.getData() as string);
+        break;
+      case IframeAction.LOAD:
+        // setLoading(false);
+        if (value) {
+          // container.documentEditor.open(JSON.parse(value));
+        }
+        break;
+      default:
+        console.log("no action detected!");
+        break;
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("message", iframeActions, false);
+
+    return () => {
+      window.removeEventListener("message", iframeActions);
+    };
+  }, []);
+
   return (
     <>
       <div
@@ -210,7 +144,7 @@ const Flowchart = ({ close, codeHash }: IProps) => {
           maxWidth: "600px",
         }}
       >
-        <div
+        {/* <div
           style={{
             flex: 1,
             marginLeft: "5px",
@@ -224,7 +158,7 @@ const Flowchart = ({ close, codeHash }: IProps) => {
               width: "100%",
             }}
           />
-        </div>
+        </div> */}
         {codeHash && (
         <div
           style={{
@@ -239,7 +173,7 @@ const Flowchart = ({ close, codeHash }: IProps) => {
             value={flowChartType}
             onChange={handleFlowTypeChange}
             style={{
-              width: "100%",
+              width: "200px",
               height: "33px",
               padding: "0 5px",
               cursor: "pointer",
@@ -260,7 +194,7 @@ const Flowchart = ({ close, codeHash }: IProps) => {
         }}
       >
         <div className="flowchart-content">{flowComponent()}</div>
-        <div
+        {/* <div
           style={{
             padding: "25px 0 10px 0",
             textAlign: "left",
@@ -272,7 +206,7 @@ const Flowchart = ({ close, codeHash }: IProps) => {
           <button className="clasor-btn" onClick={confirmDialog}>
             تایید و ذخیره
           </button>
-        </div>
+        </div> */}
       </div>
     </>
   );
