@@ -1,17 +1,15 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
-import {
-  getErrorHandler,
+import React, { ChangeEvent, useEffect, useState } from "react";
+import { getErrorHandler,
   getHandleRefreshToken,
   getHandleShareFile,
   getValue,
-  setValue,
-} from '../Store';
-import { ClasorModal } from '../Modal';
-import { IFile, IImageProps } from '../Interface';
-import { EImageAlign } from '../Enum';
-import { fileTypeIs } from '../Helper/Utils';
-import ImageDetail from './ImageDetail';
-import PodSpaceFolder from 'pod-space-folder';
+  setValue } from "../Store";
+import { ClasorModal } from "../Modal";
+import { IFile, IImageProps } from "../Interface";
+import { EImageAlign } from "../Enum";
+import { fileTypeIs } from "../Helper/Utils";
+import ImageDetail from "./ImageDetail";
+import PodSpaceFolder from "pod-space-folder";
 
 declare interface IProps {
   handlePublicUrl?: (url: string) => void;
@@ -19,20 +17,19 @@ declare interface IProps {
   handleSelect: (file: IFile, imageProperties?: IImageProps) => void;
 }
 
-const expression =
-  /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+const expression = /[\w#%+.:=@~-]{1,256}\.[\d()a-z]{1,6}\b([\w#%&()+./:=?@~-]*)?/gi;
 const urlRegex = new RegExp(expression);
 let timeout: number;
 const FileManagementDialog = (props: IProps) => {
   const handleError = getErrorHandler();
 
-  const userToken = getValue('token');
+  const userToken = getValue("token");
   const [imageProperties, setImageProperties] = useState<IImageProps>({
     alignment: EImageAlign.NONE,
     hasCaption: false,
   });
-  const userGroupHash = getValue('userGroupHash');
-  const podSpaceServer = getValue('podSpaceServer');
+  const userGroupHash = getValue("userGroupHash");
+  const podSpaceServer = getValue("podSpaceServer");
   const handleShareFile = getHandleShareFile();
   const handleRefresh = getHandleRefreshToken()!;
 
@@ -59,7 +56,7 @@ const FileManagementDialog = (props: IProps) => {
   const handlePublicUrlChange = (event: ChangeEvent<HTMLInputElement>) => {
     clearTimeout(timeout);
     timeout = window.setTimeout(() => {
-      const value = event.target.value;
+      const { value } = event.target;
       if (value.match(urlRegex)) {
         setPublicUrl(value);
       } else {
@@ -70,7 +67,7 @@ const FileManagementDialog = (props: IProps) => {
 
   const refreshToken = async () => {
     const token = await handleRefresh();
-    setValue('token', token);
+    setValue("token", token);
     return token;
   };
 
@@ -81,10 +78,13 @@ const FileManagementDialog = (props: IProps) => {
   }, []);
 
   return (
-    <ClasorModal title="مدیریت فایل" open={true} onClose={handleClose}>
+    <ClasorModal title="مدیریت فایل" open onClose={handleClose}>
       <>
         {handlePublicUrl ? (
-          <div style={{ display: 'flex', marginTop: '10px' }}>
+          <div style={{
+            display: "flex", marginTop: "10px",
+          }}
+          >
             <input
               placeholder="مسیر فایل عمومی"
               onChange={handlePublicUrlChange}
@@ -102,15 +102,15 @@ const FileManagementDialog = (props: IProps) => {
         ) : null}
         <div
           style={{
-            display: 'flex',
-            marginTop: '10px',
-            marginBottom: '25px',
+            display: "flex",
+            marginTop: "10px",
+            marginBottom: "25px",
           }}
         >
           <input
-            disabled={true}
+            disabled
             placeholder="نام فایل انتخاب شده"
-            value={(file && file.name + '.' + file.extension) || ''}
+            value={(file && `${file.name}.${file.extension}`) || ""}
             name="fileName"
             className="clasor-input"
           />
@@ -122,8 +122,14 @@ const FileManagementDialog = (props: IProps) => {
             تایید
           </button>
         </div>
-        <div style={{ display: 'flex', width: '100%', height: '100%' }}>
-          <div style={{ width: '100%', height: '100%', flex: 1 }}>
+        <div style={{
+          display: "flex", width: "100%", height: "100%",
+        }}
+        >
+          <div style={{
+            width: "100%", height: "100%", flex: 1,
+          }}
+          >
             <PodSpaceFolder
               userToken={userToken!}
               userGroupHash={userGroupHash!}
@@ -140,7 +146,7 @@ const FileManagementDialog = (props: IProps) => {
             />
           </div>
 
-          {file && fileTypeIs(file.extension) === 'IMAGE' && (
+          {file && fileTypeIs(file.extension) === "IMAGE" && (
             <ImageDetail
               properties={imageProperties}
               setImageProperties={setImageProperties}
