@@ -4,19 +4,19 @@ import { EFlowType } from "../../extra/ClasorEditor/src/Enum";
 import FlowChart from "../../extra/ClasorEditor/src/CoreEditor/FlowChart/FlowChart";
 import { MindMap } from "../../extra/ClasorEditor/src/CoreEditor/FlowChart/MindMap";
 import { Swimlane } from "../../extra/ClasorEditor/src/CoreEditor/FlowChart/Swimlane";
-import { IframeAction } from "../../interface/enum";
+import { IframeAction, IframeMode } from "../../interface/enum";
 
-interface IProps{
+interface IProps {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  isPreview: boolean;
+  setPreview: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 let defaultType = EFlowType.BASIC;
 
-const FlowchartComponent = ({ setLoading }: IProps) => {
+const FlowchartComponent = ({ setLoading, isPreview, setPreview }: IProps) => {
   let flowchartRef: FlowChart | Swimlane | MindMap | null = null;
-  const [flowChartType, setFlowChartType] = useState<EFlowType>(
-    defaultType,
-  );
+  const [flowChartType, setFlowChartType] = useState<EFlowType>(defaultType);
 
   const setFlowChartData = (flowRef: FlowChart | Swimlane | MindMap | null) => {
     if (!flowRef) {
@@ -52,6 +52,14 @@ const FlowchartComponent = ({ setLoading }: IProps) => {
     const { action, key, value } = event.data;
 
     console.log("message from parent recieved:", action);
+    if (
+      action === IframeMode.PREVIEW
+      || action === IframeMode.TEMPORARY_PREVIEW
+    ) {
+      setPreview(true);
+    } else if (action === IframeMode.EDIT) {
+      setPreview(false);
+    }
 
     switch (action) {
       case IframeAction.SAVE:
@@ -103,23 +111,25 @@ const FlowchartComponent = ({ setLoading }: IProps) => {
             marginLeft: "5px",
           }}
         >
-          <select
-            className="clasor-select-input"
-            name="flowType"
-            id="flow-type-select"
-            value={flowChartType}
-            onChange={handleFlowTypeChange}
-            style={{
-              width: "200px",
-              height: "33px",
-              padding: "0 5px",
-              cursor: "pointer",
-            }}
-          >
-            <option value={EFlowType.BASIC}>Basic</option>
-            <option value={EFlowType.SWIMLANE}>Swimlane</option>
-            <option value={EFlowType.MINDMAP}>Mindmap</option>
-          </select>
+          {!isPreview && (
+            <select
+              className="clasor-select-input"
+              name="flowType"
+              id="flow-type-select"
+              value={flowChartType}
+              onChange={handleFlowTypeChange}
+              style={{
+                width: "200px",
+                height: "33px",
+                padding: "0 5px",
+                cursor: "pointer",
+              }}
+            >
+              <option value={EFlowType.BASIC}>Basic</option>
+              <option value={EFlowType.SWIMLANE}>Swimlane</option>
+              <option value={EFlowType.MINDMAP}>Mindmap</option>
+            </select>
+          )}
         </div>
       </div>
       <div
@@ -137,10 +147,17 @@ const FlowchartComponent = ({ setLoading }: IProps) => {
 
 const Flowchart = () => {
   const [loading, setLoading] = useState(false);
+  const [isPreview, setPreview] = useState(true);
   if (loading) {
     return null;
   }
-  return <FlowchartComponent setLoading={setLoading} />;
+  return (
+    <FlowchartComponent
+      setLoading={setLoading}
+      isPreview={isPreview}
+      setPreview={setPreview}
+    />
+  );
 };
 
 export default Flowchart;
