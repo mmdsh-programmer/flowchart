@@ -1,19 +1,17 @@
-import {
-  ConnectorConstraints,
+import { ConnectorConstraints,
   ConnectorModel,
   DiagramComponent,
   IClickEventArgs,
   NodeConstraints,
-  NodeModel,
-} from '@syncfusion/ej2-react-diagrams';
-import { EDiagramITemType } from '../../../Enum';
-import { IItemProps } from '../../../Interface';
-import domtoimage from 'dom-to-image';
+  NodeModel } from "@syncfusion/ej2-react-diagrams";
+import { EDiagramITemType } from "../../../Enum";
+import { IItemProps } from "../../../Interface";
+import domtoimage from "dom-to-image";
 
-import React from 'react';
+import React from "react";
 
 export declare interface IProps {
-  mode: 'PREVIEW' | 'EDIT';
+  mode: "PREVIEW" | "EDIT";
   overviewPanel?: boolean;
 }
 
@@ -26,14 +24,19 @@ let timeout: number;
 
 export class SampleBase extends React.PureComponent<IProps, IState> {
   diagramInstance: DiagramComponent | null = null;
-  //Initializes the nodes for the diagram
+
+  // Initializes the nodes for the diagram
   nodes: NodeModel[] = [];
-  //Initializes the connector for the diagram
+
+  // Initializes the connector for the diagram
   connectors: ConnectorModel[] = [];
+
   imageRef = React.createRef<HTMLDivElement>();
+
   rendereComplete() {
-    /**custom render complete function */
+    /** custom render complete function */
   }
+
   componentDidMount() {
     setTimeout(() => {
       this.rendereComplete();
@@ -41,41 +44,41 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
   }
 
   itemClick = (arg: IClickEventArgs) => {
-    let node: any = arg?.element;
+    const node: any = arg?.element;
     console.log(node);
     const id = node?.id;
     if (
-      node.id !== 'flowchart' &&
-      node.id !== 'swimlane' &&
-      !!!node.isPhase &&
-      !!!node.isLane &&
-      !!!node.isHeader &&
-      node.shape?.type !== 'SwimLane' &&
-      node.style
+      node.id !== "flowchart"
+      && node.id !== "swimlane"
+      && !node.isPhase
+      && !node.isLane
+      && !node.isHeader
+      && node.shape?.type !== "SwimLane"
+      && node.style
     ) {
       this.setState(() => {
         return {
           selectedItem: {
             id: id || null,
             type:
-              node.propName === 'nodes' || node.propName === 'children'
-                ? 'nodes'
-                : node.propName === 'connectors'
-                ? 'connectors'
-                : null,
+              node.propName === "nodes" || node.propName === "children"
+                ? "nodes"
+                : (node.propName === "connectors"
+                  ? "connectors"
+                  : null),
             fillColor:
-              node.style.fill === 'white' ? '#FFFFFF' : node.style.fill,
+              node.style.fill === "white" ? "#FFFFFF" : node.style.fill,
             strokeColor: node.style.strokeColor,
             strokeWidth: node.style.strokeWidth,
             fontColor:
               node.annotations && node.annotations[0]
                 ? node.annotations[0]?.style.color
-                : '#000000',
+                : "#000000",
             fontSize:
               node.annotations && node.annotations[0]
                 ? node.annotations[0]?.style.fontSize
                 : 12,
-            tooltip: node.tooltip.content || null,
+            tooltip: node?.tooltip?.content || null,
           },
         };
       });
@@ -86,9 +89,9 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
           selectedItem: {
             id: null,
             type: null,
-            fillColor: '#FFFFFF',
-            fontColor: '#000000',
-            strokeColor: '#000000',
+            fillColor: "#FFFFFF",
+            fontColor: "#000000",
+            strokeColor: "#000000",
             strokeWidth: 1,
             fontSize: 12,
           },
@@ -96,15 +99,16 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
       });
     }
   };
+
   handleFillColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     clearTimeout(timeout);
     const fillColor = event.target.value;
     if (this.diagramInstance) {
-      if (this.state.selectedItem.type === 'nodes') {
+      if (this.state.selectedItem.type === "nodes") {
         const itemArr = this.diagramInstance.nodes;
         // find seleced item
         const itemIndex = itemArr.findIndex(
-          (node) => node.id === this.state.selectedItem.id
+          (node) => { return node.id === this.state.selectedItem.id; },
         );
         const selectedItem = itemArr[itemIndex];
         // set new fill color
@@ -116,10 +120,10 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
             };
           }
         }, 100);
-      } else if (this.state.selectedItem.type === 'connectors') {
+      } else if (this.state.selectedItem.type === "connectors") {
         const itemArr = this.diagramInstance.connectors;
         const itemIndex = itemArr.findIndex(
-          (node) => node.id === this.state.selectedItem.id
+          (node) => { return node.id === this.state.selectedItem.id; },
         );
         const selectedItem = itemArr[itemIndex];
         selectedItem.style = {
@@ -128,9 +132,9 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
           fill: fillColor,
         };
         if (
-          selectedItem.targetDecorator &&
-          selectedItem.targetDecorator.style &&
-          selectedItem.targetDecorator.shape === 'Arrow'
+          selectedItem.targetDecorator
+          && selectedItem.targetDecorator.style
+          && selectedItem.targetDecorator.shape === "Arrow"
         ) {
           selectedItem.targetDecorator.style = {
             ...selectedItem.targetDecorator,
@@ -139,9 +143,9 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
           };
         }
         if (
-          selectedItem.sourceDecorator &&
-          selectedItem.sourceDecorator.style &&
-          selectedItem.sourceDecorator.shape === 'Arrow'
+          selectedItem.sourceDecorator
+          && selectedItem.sourceDecorator.style
+          && selectedItem.sourceDecorator.shape === "Arrow"
         ) {
           selectedItem.sourceDecorator.style = {
             ...selectedItem.targetDecorator,
@@ -168,18 +172,17 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
 
   handleStrokeWidthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     clearTimeout(timeout);
-    const strokeWidth =
-      +event.target.value >= 50
-        ? 50
-        : +event.target.value <= 1
+    const strokeWidth = +event.target.value >= 50
+      ? 50
+      : (+event.target.value <= 1
         ? 1
-        : +event.target.value;
+        : +event.target.value);
     if (this.diagramInstance) {
-      if (this.state.selectedItem.type === 'nodes') {
+      if (this.state.selectedItem.type === "nodes") {
         const itemArr = this.diagramInstance.nodes;
         // find seleced item
         const itemIndex = itemArr.findIndex(
-          (node) => node.id === this.state.selectedItem.id
+          (node) => { return node.id === this.state.selectedItem.id; },
         );
         const selectedItem = itemArr[itemIndex];
         // set new fill color
@@ -191,10 +194,10 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
             };
           }
         }, 100);
-      } else if (this.state.selectedItem.type === 'connectors') {
+      } else if (this.state.selectedItem.type === "connectors") {
         const itemArr = this.diagramInstance.connectors;
         const itemIndex = itemArr.findIndex(
-          (node) => node.id === this.state.selectedItem.id
+          (node) => { return node.id === this.state.selectedItem.id; },
         );
         const selectedItem = itemArr[itemIndex];
         selectedItem.style = {
@@ -202,9 +205,9 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
           strokeWidth,
         };
         if (
-          selectedItem.targetDecorator &&
-          selectedItem.targetDecorator.style &&
-          selectedItem.targetDecorator.shape === 'Arrow'
+          selectedItem.targetDecorator
+          && selectedItem.targetDecorator.style
+          && selectedItem.targetDecorator.shape === "Arrow"
         ) {
           selectedItem.targetDecorator.style = {
             ...selectedItem.targetDecorator,
@@ -212,9 +215,9 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
           };
         }
         if (
-          selectedItem.sourceDecorator &&
-          selectedItem.sourceDecorator.style &&
-          selectedItem.sourceDecorator.shape === 'Arrow'
+          selectedItem.sourceDecorator
+          && selectedItem.sourceDecorator.style
+          && selectedItem.sourceDecorator.shape === "Arrow"
         ) {
           selectedItem.sourceDecorator.style = {
             ...selectedItem.targetDecorator,
@@ -231,7 +234,7 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
         return {
           selectedItem: {
             ...prevState.selectedItem,
-            strokeWidth: strokeWidth,
+            strokeWidth,
           },
         };
       });
@@ -242,26 +245,25 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
     const strokeColor = event.target.value;
     clearTimeout(timeout);
     if (this.diagramInstance && this.state.selectedItem.type) {
-      const itemArr =
-        this.diagramInstance[
+      const itemArr = this.diagramInstance[
           `${this.state.selectedItem.type}` as EDiagramITemType
-        ];
+      ];
       // find seleced item
       const itemIndex = itemArr.findIndex(
-        (node) => node.id === this.state.selectedItem.id
+        (node) => { return node.id === this.state.selectedItem.id; },
       );
       const selectedItem = itemArr[itemIndex];
       selectedItem.style = {
         ...selectedItem.style,
-        strokeColor: strokeColor,
+        strokeColor,
       };
       // set new fill color
       timeout = window.setTimeout(() => {
         if (
-          itemIndex >= 0 &&
-          this.diagramInstance &&
-          selectedItem.annotations &&
-          selectedItem.annotations[0]
+          itemIndex >= 0
+          && this.diagramInstance
+          && selectedItem.annotations
+          && selectedItem.annotations[0]
         ) {
           this.diagramInstance[
             `${this.state.selectedItem.type}` as EDiagramITemType
@@ -280,45 +282,39 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
   };
 
   handleFontSizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const fontSize =
-      +event.target.value >= 50
-        ? 50
-        : +event.target.value <= 1
+    const fontSize = +event.target.value >= 50
+      ? 50
+      : (+event.target.value <= 1
         ? 1
-        : +event.target.value;
+        : +event.target.value);
     clearTimeout(timeout);
     if (this.diagramInstance && this.state.selectedItem.type) {
-      const itemArr =
-        this.diagramInstance[
+      const itemArr = this.diagramInstance[
           `${this.state.selectedItem.type}` as EDiagramITemType
-        ];
+      ];
       // find seleced item
       const itemIndex = itemArr.findIndex(
-        (node) => node.id === this.state.selectedItem.id
+        (node) => { return node.id === this.state.selectedItem.id; },
       );
       const selectedItem = itemArr[itemIndex];
       // set new fill color
       timeout = window.setTimeout(() => {
         if (
-          itemIndex >= 0 &&
-          this.diagramInstance &&
-          selectedItem.annotations &&
-          selectedItem.annotations[0]
-        ) {
-          if (
-            this.diagramInstance[
+          itemIndex >= 0
+          && this.diagramInstance
+          && selectedItem.annotations
+          && selectedItem.annotations[0]
+         && this.diagramInstance[
               `${this.state.selectedItem.type}` as EDiagramITemType
-            ][itemIndex].annotations?.[0]?.style
-          ) {
-            const annotations =
-              this.diagramInstance[
+         ][itemIndex].annotations?.[0]?.style
+        ) {
+          const { annotations } = this.diagramInstance[
                 `${this.state.selectedItem.type}` as EDiagramITemType
-              ][itemIndex].annotations;
+          ][itemIndex];
             annotations![0].style = {
               ...selectedItem.annotations[0].style,
               fontSize,
             };
-          }
         }
       }, 100);
     }
@@ -326,7 +322,7 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
       return {
         selectedItem: {
           ...prevState.selectedItem,
-          fontSize: fontSize,
+          fontSize,
         },
       };
     });
@@ -336,37 +332,32 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
     const fontColor = event.target.value;
     clearTimeout(timeout);
     if (this.diagramInstance && this.state.selectedItem.type) {
-      const itemArr =
-        this.diagramInstance[
+      const itemArr = this.diagramInstance[
           `${this.state.selectedItem.type}` as EDiagramITemType
-        ];
+      ];
       // find seleced item
       const itemIndex = itemArr.findIndex(
-        (node) => node.id === this.state.selectedItem.id
+        (node) => { return node.id === this.state.selectedItem.id; },
       );
       const selectedItem = itemArr[itemIndex];
       // set new fill color
       timeout = window.setTimeout(() => {
         if (
-          itemIndex >= 0 &&
-          this.diagramInstance &&
-          selectedItem.annotations &&
-          selectedItem.annotations[0]
-        ) {
-          if (
-            this.diagramInstance[
+          itemIndex >= 0
+          && this.diagramInstance
+          && selectedItem.annotations
+          && selectedItem.annotations[0]
+         && this.diagramInstance[
               `${this.state.selectedItem.type}` as EDiagramITemType
-            ][itemIndex].annotations?.[0]?.style
-          ) {
-            const annotations =
-              this.diagramInstance[
+         ][itemIndex].annotations?.[0]?.style
+        ) {
+          const { annotations } = this.diagramInstance[
                 `${this.state.selectedItem.type}` as EDiagramITemType
-              ][itemIndex].annotations;
+          ][itemIndex];
             annotations![0].style = {
               ...selectedItem.annotations[0].style,
               color: fontColor,
             };
-          }
         }
       }, 100);
     }
@@ -374,7 +365,7 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
       return {
         selectedItem: {
           ...prevState.selectedItem,
-          fontColor: fontColor,
+          fontColor,
         },
       };
     });
@@ -384,39 +375,40 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
     clearTimeout(timeout);
     const tooltipContent = event.target.value;
     if (this.diagramInstance && this.state.selectedItem.type) {
-      const itemArr =
-        this.diagramInstance[
+      const itemArr = this.diagramInstance[
           `${this.state.selectedItem.type}` as EDiagramITemType
-        ];
+      ];
       // find seleced item
       const itemIndex = itemArr.findIndex(
-        (node) => node.id === this.state.selectedItem.id
+        (node) => { return node.id === this.state.selectedItem.id; },
       );
       // set new fill color
       timeout = window.setTimeout(() => {
         if (itemIndex >= 0 && this.diagramInstance) {
-          const selectedItem =
-            this.diagramInstance[
+          const selectedItem = this.diagramInstance[
               `${this.state.selectedItem.type}` as EDiagramITemType
-            ][itemIndex];
+          ][itemIndex];
           if (selectedItem.tooltip) {
             selectedItem.tooltip = {
               content: tooltipContent,
-              position: 'TopLeft',
-              //Sets the tooltip position relative to the node
-              relativeMode: 'Object',
+              position: "TopLeft",
+              // Sets the tooltip position relative to the node
+              relativeMode: "Object",
               animation: {
-                open: { effect: 'FadeZoomIn', delay: 0 },
-                close: { effect: 'FadeZoomOut', delay: 0 },
+                open: {
+                  effect: "FadeZoomIn", delay: 0,
+                },
+                close: {
+                  effect: "FadeZoomOut", delay: 0,
+                },
               },
             };
           }
           if (selectedItem.constraints) {
-            selectedItem.constraints =
-              NodeConstraints.Default |
-              NodeConstraints.Tooltip |
-              ConnectorConstraints.Default |
-              ConnectorConstraints.Tooltip;
+            selectedItem.constraints = NodeConstraints.Default
+              | NodeConstraints.Tooltip
+              | ConnectorConstraints.Default
+              | ConnectorConstraints.Tooltip;
           }
         }
       }, 100);
@@ -455,15 +447,14 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
       try {
         const node = this.imageRef.current;
         if (node) {
-          const wrapper = node.getElementsByClassName('e-droppable');
+          const wrapper = node.querySelectorAll(".e-droppable");
           const options = {
             quality: 8.5,
             width: 600,
             height: 600,
           };
           if (wrapper && wrapper[0]) {
-            const editlayerElement =
-              document.getElementsByClassName('e-adorner-layer');
+            const editlayerElement = document.querySelectorAll(".e-adorner-layer");
             if (editlayerElement && editlayerElement[0]) {
               editlayerElement[0].remove();
             }
@@ -471,7 +462,7 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
             resolve(base64);
           }
         }
-      } catch (error) {
+      } catch {
         resolve(null);
       }
     });
@@ -482,7 +473,7 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
       try {
         const image = this.imageRef.current;
         if (image) {
-          const wrapper = image.getElementsByClassName('e-droppable');
+          const wrapper = image.querySelectorAll(".e-droppable");
           const options = {
             quality: 8.5,
           };
@@ -496,7 +487,7 @@ export class SampleBase extends React.PureComponent<IProps, IState> {
             resolve(base64);
           }
         }
-      } catch (error) {
+      } catch {
         resolve(null);
       }
     });

@@ -1,5 +1,5 @@
 /* eslint-disable import/no-relative-packages */
-import React, { useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { EFlowType } from "../../extra/ClasorEditor/src/Enum";
 import FlowChart from "../../extra/ClasorEditor/src/CoreEditor/FlowChart/FlowChart";
 import { MindMap } from "../../extra/ClasorEditor/src/CoreEditor/FlowChart/MindMap";
@@ -10,15 +10,10 @@ import { IframeAction } from "../../interface/enum";
 const Flowchart = () => {
   const codeHash = "test";
   let flowchartRef: FlowChart | Swimlane | MindMap | null = null;
-  const nameRef = useRef<HTMLInputElement>(null);
   const [flowChartType, setFlowChartType] = useState<EFlowType>(
     EFlowType.BASIC,
   );
   const setTypeRef = useRef<boolean>(false);
-
-  const confirm = () => {
-    console.log(flowchartRef?.getData());
-  };
 
   const setFlowChartData = (flowRef: FlowChart | Swimlane | MindMap | null) => {
     if (!flowRef) {
@@ -41,15 +36,11 @@ const Flowchart = () => {
     if (!data || !flowRef) {
       return;
     }
-    const nameInput = nameRef.current;
-    if (nameInput) {
-      const name = (parentElement as HTMLElement).dataset.content;
-      nameInput.value = name || "";
-    }
     flowRef.setData(data);
+    debugger;
   };
 
-  const handleFlowTypeChange = (event: any) => {
+  const handleFlowTypeChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const flowType = event.target.value as EFlowType;
     setFlowChartType(flowType);
   };
@@ -114,13 +105,11 @@ const Flowchart = () => {
         localStorage.setItem(key, flowchartRef?.getData() as string);
         break;
       case IframeAction.LOAD:
-        // setLoading(false);
         if (value) {
-          // container.documentEditor.open(JSON.parse(value));
+          flowchartRef?.setData(value);
         }
         break;
       default:
-        console.log("no action detected!");
         break;
     }
   };
