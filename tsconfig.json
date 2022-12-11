@@ -24,5 +24,6 @@
     },
   },
   "include": ["src"],
+  "exclude": ["src/extra/ClasorEditor"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
