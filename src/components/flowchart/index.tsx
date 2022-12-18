@@ -5,16 +5,18 @@ import FlowChart from "../../extra/ClasorEditor/src/CoreEditor/FlowChart/FlowCha
 import { MindMap } from "../../extra/ClasorEditor/src/CoreEditor/FlowChart/MindMap";
 import { Swimlane } from "../../extra/ClasorEditor/src/CoreEditor/FlowChart/Swimlane";
 import { IframeAction, IframeMode } from "../../interface/enum";
+import RenderIf from "../../extra/renderIf";
 
 interface IProps {
+  loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  isPreview: boolean;
-  setPreview: React.Dispatch<React.SetStateAction<boolean>>;
+  mode: "PREVIEW" | "EDIT";
+  setMode: React.Dispatch<React.SetStateAction<"PREVIEW" | "EDIT">>;
 }
 
 let defaultType = EFlowType.BASIC;
 
-const FlowchartComponent = ({ setLoading, isPreview, setPreview }: IProps) => {
+const FlowchartComponent = ({ setLoading, mode, setMode, loading }: IProps) => {
   let flowchartRef: FlowChart | Swimlane | MindMap | null = null;
   const [flowChartType, setFlowChartType] = useState<EFlowType>(defaultType);
 
@@ -35,33 +37,19 @@ const FlowchartComponent = ({ setLoading, isPreview, setPreview }: IProps) => {
     }, 10);
   };
 
-  const flowComponent = () => {
-    switch (flowChartType) {
-      case EFlowType.BASIC:
-        return <FlowChart mode="EDIT" ref={setFlowChartData} />;
-      case EFlowType.SWIMLANE:
-        return <Swimlane mode="EDIT" ref={setFlowChartData} />;
-      case EFlowType.MINDMAP:
-        return <MindMap mode="EDIT" ref={setFlowChartData} />;
-      default:
-        break;
-    }
-  };
-
   const iframeActions = async (event: MessageEvent) => {
     const { action, key, value } = event.data;
 
     console.log("message from parent recieved:", action);
-    if (
-      action === IframeMode.PREVIEW
-      || action === IframeMode.TEMPORARY_PREVIEW
-    ) {
-      setPreview(true);
-    } else if (action === IframeMode.EDIT) {
-      setPreview(false);
-    }
 
     switch (action) {
+      case IframeMode.PREVIEW:
+      case IframeMode.TEMPORARY_PREVIEW:
+        setMode("PREVIEW");
+        break;
+      case IframeMode.EDIT:
+        setMode("EDIT");
+        break;
       case IframeAction.SAVE:
       case IframeAction.FREE_DRAFT:
         event.source!.postMessage(
@@ -111,7 +99,7 @@ const FlowchartComponent = ({ setLoading, isPreview, setPreview }: IProps) => {
             marginLeft: "5px",
           }}
         >
-          {!isPreview && (
+          {mode === "EDIT" && (
             <select
               className="clasor-select-input"
               name="flowType"
@@ -139,7 +127,17 @@ const FlowchartComponent = ({ setLoading, isPreview, setPreview }: IProps) => {
           flex: "1",
         }}
       >
-        <div className="flowchart-content">{flowComponent()}</div>
+        <div className="flowchart-content">
+          <RenderIf isTrue={flowChartType === EFlowType.BASIC}>
+            <FlowChart mode="EDIT" ref={setFlowChartData} />
+          </RenderIf>
+          <RenderIf isTrue={flowChartType === EFlowType.SWIMLANE}>
+            <Swimlane mode="EDIT" ref={setFlowChartData} />
+          </RenderIf>
+          <RenderIf isTrue={flowChartType === EFlowType.MINDMAP}>
+            <MindMap mode="EDIT" ref={setFlowChartData} />
+          </RenderIf>
+        </div>
       </div>
     </>
   );
@@ -147,15 +145,16 @@ const FlowchartComponent = ({ setLoading, isPreview, setPreview }: IProps) => {
 
 const Flowchart = () => {
   const [loading, setLoading] = useState(false);
-  const [isPreview, setPreview] = useState(true);
+  const [mode, setMode] = useState<"PREVIEW" | "EDIT">("EDIT");
   if (loading) {
     return null;
   }
   return (
     <FlowchartComponent
+      loading={loading}
       setLoading={setLoading}
-      isPreview={isPreview}
-      setPreview={setPreview}
+      mode={mode}
+      setMode={setMode}
     />
   );
 };
