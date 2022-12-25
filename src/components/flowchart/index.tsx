@@ -38,7 +38,7 @@ const FlowchartComponent = ({ setLoading, mode, setMode, loading }: IProps) => {
   };
 
   const iframeActions = async (event: MessageEvent) => {
-    const { action, key, value } = event.data;
+    const { action, key, value, mode: parentMode } = event.data;
 
     console.log("message from parent recieved:", action);
 
@@ -67,6 +67,9 @@ const FlowchartComponent = ({ setLoading, mode, setMode, loading }: IProps) => {
       case IframeAction.LOAD:
         if (value) {
           flowchartRef?.setData(value);
+          setTimeout(() => {
+            setMode(parentMode === "edit" ? "EDIT" : "PREVIEW");
+          });
         }
         break;
       default:
@@ -129,13 +132,13 @@ const FlowchartComponent = ({ setLoading, mode, setMode, loading }: IProps) => {
       >
         <div className="flowchart-content">
           <RenderIf isTrue={flowChartType === EFlowType.BASIC}>
-            <FlowChart mode="EDIT" ref={setFlowChartData} />
+            <FlowChart mode={mode} ref={setFlowChartData} />
           </RenderIf>
           <RenderIf isTrue={flowChartType === EFlowType.SWIMLANE}>
-            <Swimlane mode="EDIT" ref={setFlowChartData} />
+            <Swimlane mode={mode} ref={setFlowChartData} />
           </RenderIf>
           <RenderIf isTrue={flowChartType === EFlowType.MINDMAP}>
-            <MindMap mode="EDIT" ref={setFlowChartData} />
+            <MindMap mode={mode} ref={setFlowChartData} />
           </RenderIf>
         </div>
       </div>
